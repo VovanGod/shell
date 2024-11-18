@@ -105,7 +105,7 @@ int main() {
     
     if(strncmp(input, "SIGHUP", 7) == 0) {
       // в одном терминале собрали через gcc main.c -o main и запустили ./main, ввели SIGHUP
-      // в другом терминале ps aux | grep main и нашли пид процесса, потом убили его с помощью kill -2 pid
+      // в другом терминале ps aux | grep main и нашли пид процесса, потом убили его с помощью kill -INT pid
       signal(SIGINT, handle_sighup);
       while(1) {
         pause();
