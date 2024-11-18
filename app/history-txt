@@ -1,0 +1,44 @@
+
+123
+run pwd
+run ls
+run ls -la
+
+run ls -l
+run pwd
+run ls
+12
+123
+
+123
+\e PATH
+run pwd
+
+run pwd
+
+
+
+SIGHUP
+
+123
+
+123
+SIGHUP
+
+123
+SIGHUP
+
+123
+
+
+
+123
+
+123
+SIGHUP
+
+123
+SIGHUP
+123
+\e PATH
+echo EDIK_MOLODOY
