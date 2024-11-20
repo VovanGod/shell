@@ -1,9 +1,12 @@
 #include <stdio.h>
+#include <stdint.h>
 #include <string.h>
 #include <stdlib.h>
 #include <sys/wait.h>
 #include <unistd.h>
 #include <ctype.h>
+#include <fcntl.h>
+#include <sys/types.h>
 
 void save_history(char*command) {
   FILE *file = fopen("history-txt", "a");
@@ -42,12 +45,55 @@ void executeCommand(const char* command) {
  }
 
 
- void handle_sighup() {
-      printf("Configuration reloaded\n");
-      fflush(stdout); // Необходимо для немедленного вывода на консоль
-  }
+void handle_sighup() {
+    printf("Configuration reloaded\n\n");
+    printf("Enter string> ");
+    fflush(stdout); // Необходимо для немедленного вывода на консоль
+}
+
+int device(char*deviceName) {
+    // Формируем полный путь к устройству
+    char devicePath[256];
+    snprintf(devicePath, sizeof(devicePath),"/dev/%s", deviceName);
+
+    // Открываем устройство для чтения
+    int fd = open(devicePath, O_RDONLY);
+    if (fd == -1) {
+        perror("Ошибка открытия устройства"); 
+        return 1;
+    }
+
+    // Читаем первые 512 байт (первый сектор)
+    unsigned char sector[512];
+    ssize_t bytesRead = read(fd, sector, 512);
+    if (bytesRead == -1) {
+        perror("Ошибка чтения сектора");
+        close(fd);
+        return 1;
+    } else if (bytesRead < 512) {
+        fprintf(stderr, "Не удалось прочитать весь сектор.\n");
+        close(fd);
+        return 1;
+    }
+
+    // Извлекаем сигнатуру из первых двух байтов
+    unsigned short signature;
+    signature = (sector[510] << 8) | sector[511]; // 510 и 511 - байты сигнатуры
+
+    // Проверяем сигнатуру
+    if (signature == 0x55AA) {
+        printf("Устройство %s является загрузочным (сигнатура 0x55AA).\n", deviceName);
+    } else {
+        printf("Устройство %s не является загрузочным (сигнатура 0x%04X).\n", deviceName, signature);
+    }
+
+    // Закрываем устройство
+    close(fd);
+    return 0;
+}
 
 int main() {
+  signal(SIGHUP, handle_sighup);
   char input[300];
   
   while(1) {
@@ -68,10 +114,17 @@ int main() {
     }
 
     // strncmp - сравнивает первые n символов двух строк
-    if (strncmp(input, "echo ", 5) == 0) {
-      printf("%s\n", input+5); // %s - спецификатор формата для вывода строки, т.е принт будет искать указатель на строку и выведет ее
-      printf("\n");
-      continue;
+    if (strncmp(input, "echo", 4) == 0) {
+      if(strncmp(input, "echo ", 5) == 0){
+        printf("%s\n", input+5); // %s - спецификатор формата для вывода строки, т.е принт будет искать указатель на строку и выведет ее
+        printf("\n");
+        continue;
+      }
+      else {
+        printf("Incorrect using echo command!\n"); // %s - спецификатор формата для вывода строки, т.е принт будет искать указатель на строку и выведет ее
+        printf("\n");
+        continue;
+      }
     }
 
     // strcmp - сравнивает 2 строки, если равны то возвращает 0
@@ -102,17 +155,12 @@ int main() {
         printf("\n");
         continue;
     } 
-    
-    if(strncmp(input, "SIGHUP", 7) == 0) {
-      // в одном терминале собрали через gcc main.c -o main и запустили ./main, ввели SIGHUP
-      // в другом терминале ps aux | grep main и нашли пид процесса, потом убили его с помощью kill -INT pid
-      signal(SIGINT, handle_sighup);
-      while(1) {
-        pause();
-        break;
-      }
-      printf("\n\n");
-      continue;
+
+
+    if (strncmp(input, "\\l /dev/", 8) == 0) {
+        char* deviceName = input + 8;
+        deviceName[strcspn(deviceName, "\n")] = 0;
+        device(deviceName); // Проверяем, является ли диск загрузочным
     }
 
     printf("Your string> %s\n\n", input);

@@ -42,3 +42,68 @@ SIGHUP
 123
 \e PATH
 echo EDIK_MOLODOY
+
+123
+SIGHUP
+q
+q
+
+
+
+
+
+cd ..
+ls
+ll
+run pwd
+run ll
+
+123
+
+123
+123
+
+123
+123
+
+123
+123
+
+123
+echo
+echo 
+echo  
+echo 1
+
+123
+echo
+
+echo 1
+echo 
+echo
+
+\l /dev/sda
+
+123
+\l /dev/srt
+
+\l /dev/sda4
+
+\l /dev/sda1
+
+\l /dev/sda1
+
+\l /dev/sda1
+
+\l /dev/sda1
+
+\l /dev/sda
+
+123
+\l /dev/sdb
+
+123
+\l /dev/nvme0n1p8
+\l /dev/nvme0n1p1
+
+123
