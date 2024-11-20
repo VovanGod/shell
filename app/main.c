@@ -81,10 +81,11 @@ int device(char*deviceName) {
     signature = (sector[510] << 8) | sector[511]; // 510 и 511 - байты сигнатуры
 
     // Проверяем сигнатуру
+    // Запуск через sudo ./main, посмотреть диски df -h, выбор диска \l /dev/nvme0n1p1
     if (signature == 0x55AA) {
         printf("Устройство %s является загрузочным (сигнатура 0x55AA).\n", deviceName);
     } else {
-        printf("Устройство %s не является загрузочным (сигнатура 0x%04X).\n", deviceName, signature);
+        printf("Устройство %s не является загрузочным\n", deviceName, signature);
     }
 
     // Закрываем устройство
