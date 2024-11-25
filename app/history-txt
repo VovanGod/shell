@@ -108,3 +108,76 @@ echo
 
 123
 \l /dev/nvme0n1p1
+
+123
+\l /dev/nvme0n1p8
+\l /dev/nvme0n1p9
+\l /dev/nvme0n1p1
+
+123
+\l /dev/nvme0n1p1
+
+123
+\l /dev/nvme0n1p1
+\l /dev/nvme0n1p8
+\l /dev/nvme0n1p9
+
+123
+\l nvmeon1p1
+
+123
+\l /dev/nvme0n1p8
+
+123
+
+123
+\l nvme0n1p1
+
+123
+\l nvme0n1p1
+\l nvme0n1p8
+\l nvme0n1p9
+
+123
+kill SIGHUP 6566
+kill -SIGHUP 6566
+kill -2 6566
+
+123
+
+123
+hfijk
+
+123
+123
+
+run pwd
+run ls
+run mkdir chort
+
+\proc 5709
+\proc 1234
+\proc 3456
+\proc 5709
+\proc 5578
+\proc 5484
+
+\proc 5709
+\proc 5750
+
+\proc 5750
+
+123
+/proc 6164
+\proc 6164
+\\proc 6165
+\proc 6165
+\proc 5349
+\proc 6177
+\proc 5149
+
+123
+\proc 5035
+
+123
+\proc 2345

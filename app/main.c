@@ -7,6 +7,8 @@
 #include <ctype.h>
 #include <fcntl.h>
 #include <sys/types.h>
+#include <dirent.h>
+#include <stdbool.h>
 
 void save_history(char*command) {
   FILE *file = fopen("history-txt", "a");
@@ -81,11 +83,11 @@ int device(char*deviceName) {
     signature = (sector[510] << 8) | sector[511]; // 510 и 511 - байты сигнатуры
 
     // Проверяем сигнатуру
-    // Запуск через sudo ./main, посмотреть диски df -h, выбор диска \l /dev/nvme0n1p1
+    // Запуск через sudo ./main, посмотреть диски df -h, выбор диска \l nvme0n1p1
     if (signature == 0x55AA) {
         printf("Устройство %s является загрузочным (сигнатура 0x55AA).\n", deviceName);
     } else {
-        printf("Устройство %s не является загрузочным\n", deviceName, signature);
+        printf("Устройство %s не является загрузочным\n", deviceName);
     }
 
     // Закрываем устройство
@@ -93,8 +95,44 @@ int device(char*deviceName) {
     return 0;
 }
 
+//12 по 'mem <procid>' получить дамп памяти процесса
+bool appendToFile(char* path1, char* path2) {
+    FILE *f1 = fopen(path1, "a");
+    FILE *f2 = fopen(path2, "r");
+    if (!f1 || !f2) {
+        printf("Error while reading file %s\n", path2);
+        return false;
+    }
+    char buf[256];
+
+    while (fgets(buf, 256, f2) != NULL) {
+        fputs(buf, f1);
+    }
+    fclose(f1);
+    fclose(f2);
+    return true;
+}
+
+void makeDump(DIR* dir, char* path) {
+    FILE* res = fopen("res.txt", "w+");
+    fclose(res);
+    struct dirent* ent;
+    char* file_path;
+    while ((ent = readdir(dir)) != NULL) {
+
+        asprintf(&file_path, "%s/%s", path, ent->d_name); // asprintf работает
+        if(!appendToFile("res.txt", file_path)) {
+            return;
+        }
+    }
+    printf("Dump completed!\n");
+}
+
+
+
 int main() {
-  signal(SIGHUP, handle_sighup);
+  // signal регистрирует функцию handle_sighup в качестве обработчика сигнала SIGHUP
+  signal(SIGHUP, handle_sighup); // kill -SIGHUP <pid>
   char input[300];
   
   while(1) {
@@ -158,10 +196,24 @@ int main() {
     } 
 
 
-    if (strncmp(input, "\\l /dev/", 8) == 0) {
-        char* deviceName = input + 8;
+    if (strncmp(input, "\\l ", 3) == 0) {
+        char* deviceName = input + 3;
         deviceName[strcspn(deviceName, "\n")] = 0;
         device(deviceName); // Проверяем, является ли диск загрузочным
+    }
+
+    if (strncmp(input, "\\proc ", 6) == 0) { // sudo ./main вызываем
+        char* path;
+        asprintf(&path, "/proc/%s/map_files", input+6);
+
+        DIR* dir = opendir(path);
+        if (dir) {
+            makeDump(dir, path);
+        }
+        else {
+            printf("Process not found\n");
+        }
+        continue;
     }
 
     printf("Your string> %s\n\n", input);
