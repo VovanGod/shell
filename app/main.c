@@ -41,10 +41,7 @@ void executeCommand(const char* command) {
     } else {
         wait(NULL); // Ожидание завершения дочернего процесса
     }
-
-    // gcc main.c -o main - компиляция кода
-    // ./main - запуск бинарника
- }
+}
 
 
 void handle_sighup() {
@@ -85,9 +82,9 @@ int device(char*deviceName) {
     // Проверяем сигнатуру
     // Запуск через sudo ./main, посмотреть диски df -h, выбор диска \l nvme0n1p1
     if (signature == 0x55AA) {
-        printf("Устройство %s является загрузочным (сигнатура 0x55AA).\n", deviceName);
+        printf("Устройство %s является загрузочным (сигнатура 0x55AA).\n\n", deviceName);
     } else {
-        printf("Устройство %s не является загрузочным\n", deviceName);
+        printf("Устройство %s не является загрузочным\n\n", deviceName);
     }
 
     // Закрываем устройство
@@ -132,7 +129,7 @@ void makeDump(DIR* dir, char* path) {
 
 int main() {
   // signal регистрирует функцию handle_sighup в качестве обработчика сигнала SIGHUP
-  signal(SIGHUP, handle_sighup); // kill -SIGHUP <pid>
+  signal(1, handle_sighup); // kill -1 <pid>
   char input[300];
   
   while(1) {
@@ -168,7 +165,7 @@ int main() {
 
     // strcmp - сравнивает 2 строки, если равны то возвращает 0
     if(!isNotEmpty(input)){
-      printf("Enter correct command dibil\n");
+      printf("Enter correct command (command is empty)\n\n");
       continue;
     }
 
@@ -200,6 +197,7 @@ int main() {
         char* deviceName = input + 3;
         deviceName[strcspn(deviceName, "\n")] = 0;
         device(deviceName); // Проверяем, является ли диск загрузочным
+        continue;
     }
 
     if (strncmp(input, "\\proc ", 6) == 0) { // sudo ./main вызываем

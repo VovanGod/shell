@@ -181,3 +181,30 @@ run mkdir chort
 
 123
 \proc 2345
+
+123
+123
+
+
+
+
+   
+    hjy
+ 
+ 
+
+\e USER
+\e PATH
+run pwd
+run ls
+run pwd
+
+\l nvme0n1p8
+\l nvme0n1p1
+
+\l nvme0n1p1
+
+
+\proc 2330
+
+123
