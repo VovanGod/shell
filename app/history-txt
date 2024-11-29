@@ -210,3 +210,44 @@ run pwd
 123
 
 123
+
+123
+run LANG
+run pwd
+run l
+run ls
+run echo
+run echo hello
+run exit
+run whoami
+run hostname
+run hostname -i
+run ip
+
+
+123
+\cron
+/cron
+\cron
+
+345678
+\cron
+
+3456789
+\cron
+/cron
+\cron\
+\cron
+
+\cron 
+
+\cron
+
+\cron
+
+\cron
+\e USER
+
+\cron
+
+\cron

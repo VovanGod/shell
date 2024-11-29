@@ -2,11 +2,12 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdlib.h>
-#include <sys/wait.h>
 #include <unistd.h>
 #include <ctype.h>
 #include <fcntl.h>
 #include <sys/types.h>
+#include <sys/stat.h>
+#include <sys/wait.h>
 #include <dirent.h>
 #include <stdbool.h>
 
@@ -125,6 +126,47 @@ void makeDump(DIR* dir, char* path) {
     printf("Dump completed!\n");
 }
 
+void create_vfs() {
+    // Создаем директорию для VFS
+    const char *vfs_path = "/tmp/vfs";
+    struct stat st = {0};
+
+    if (stat(vfs_path, &st) == -1) {
+        mkdir(vfs_path, 0700);
+    }
+
+    // Получаем список задач из crontab
+    FILE *fp = popen("crontab -l", "r");
+    if (fp == NULL) {
+        perror("Failed to run crontab command");
+        return;
+    }
+
+    // Создаем файл для вывода задач
+    char output_file[256];
+    snprintf(output_file, sizeof(output_file), "%s/tasks.txt", vfs_path);
+    FILE *output = fopen(output_file, "w");
+    if (output == NULL) {
+        perror("Failed to open output file for tasks");
+        pclose(fp);
+        return;
+    }
+
+    // Читаем вывод crontab и записываем в файл, игнорируя комментарии
+    char buffer[256];
+    while (fgets(buffer, sizeof(buffer), fp) != NULL) {
+        // Игнорируем строки, начинающиеся с #
+        if (buffer[0] == '#') {
+            continue;
+        }
+        fputs(buffer, output);
+    }
+
+    fclose(output);
+    pclose(fp);
+    printf("Virtual file system created at %s with scheduled tasks.\n", vfs_path);
+}
+
 
 
 int main() {
@@ -211,6 +253,12 @@ int main() {
         else {
             printf("Process not found\n");
         }
+        continue;
+    }
+
+    if (strncmp(input, "\\cron", 5) == 0) {
+        printf("\n");
+        create_vfs(); // Создаем VFS и выводим задачи планировщика
         continue;
     }
 
